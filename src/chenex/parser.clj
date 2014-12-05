@@ -18,7 +18,7 @@ PROGRAM = (FEATURE-EXPR* FLUFF*)* | SPACE
 
 CHENEX-READER-LITERAL = #'#[+-]'
 FEATURES = #'^\\[[^\\]]*(?:\\\\.[^\\]]*)*]'
-CONTENT = SEQ | #'[a-zA-Z0-9\\-\\.]+' (* may need to tweak second part here *)
+CONTENT = SEQ | #'[a-zA-Z0-9\\-\\.]+' | '\"' #'(:?(?!\\\").|\\s*)*' '\"' (* may need to tweak second part here *)
 FEATURE-EXPR = CHENEX-READER-LITERAL <SPACE>* FEATURES <SPACE>* CONTENT <SPACE>*
 "))
 
