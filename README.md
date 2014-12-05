@@ -52,26 +52,6 @@ equivalent expression with negation would be:
 
 All cross-platform code must go in `.cljx` files.
 
-## REPL Problems
-
-REPL middleware is done but some code will not work when evaluating from
-a source file. 
-
-To show display what I'm talking about, pretend you're typing this
-feature expression in: `#+ [firefox] (+ 1 1)`.
-
-This is a top level feature expression and only `#+ [firefox]` will be
-sent to the REPL. This isn't really a problem with the middleware so
-much as with the nrepl server software like `Cider`. They weren't
-designed with feature expressions in mind (not their fault just
-annoying).  
-
-To get around this limitation, grab the code and place it into the REPL
-directly. It's not perfect but it does work. 
-
-Hopefully we'll be able to add support to various nrepl server libraries
-in the future.
-
 ## project.clj
 
 One extra profile must be added to your `project.clj` in order for
@@ -140,8 +120,8 @@ or
 $ lein chenex build browserific
 ```
 
-That creates a `chenex-builds.clj` with a basic configuration written
-for you that looks like this (showing cljx):
+That creates a `builds/chenex-builds.clj` with a basic configuration
+written for you that looks like this (showing cljx):
 
 ```clj
 [{:source-paths ["src"]
@@ -179,6 +159,41 @@ project.clj:
 
 This feature is a little experimental, so if you have suggestions for
 the template, let me know.
+
+
+## REPL Problems
+
+REPL middleware is done but some code will not work when evaluating from
+a source file. 
+
+To display what I'm talking about, pretend you're typing this
+feature expression in: `#+ [firefox] (+ 1 1)`.
+
+This is a top level feature expression and only `#+ [firefox]` will be
+sent to the REPL. This isn't really a problem with the middleware so
+much as with the nrepl server software like `Cider`. They weren't
+designed with feature expressions in mind (not their fault just
+annoying).  
+
+To get around this limitation, grab the code and place it into the REPL
+directly. It's not perfect but it does work. 
+
+Hopefully we'll be able to add support to various nrepl server libraries
+in the future.
+
+
+The REPL also must have a special file at `builds/chenex-repl.clj`
+that contains the rules for _one_ chenex build. For example:
+
+```clj
+{:filetype "clj"
+ :features #{"clj"}
+ :inner-transforms []
+ :outer-transforms []}
+```
+
+This is another ugly hack to make the REPL work. Any help to solve this
+nREPL trouble would be greatly appreciated!
 
 ## Projects Using chenex
 

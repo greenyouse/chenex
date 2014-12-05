@@ -1,4 +1,4 @@
-(defproject com.greenyouse/chenex "0.1.0-SNAPSHOT"
+(defproject com.greenyouse/chenex "0.1.0"
   :description "Another static code rewriter for Clojure"
   :url "http://github.com/greenyouse/chenex"
   :license {:name "BSD 2-Clause"
