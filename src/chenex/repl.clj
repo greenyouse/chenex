@@ -83,13 +83,14 @@
      (fn [{:keys [op code file file-name session] :as msg}]
        (cond
         (and (= op "eval") code)
-        (h (assoc msg :code (parse/repl-parse code rules)))
+        (h (assoc msg :code (if-let [check (parse/repl-parse code rules)]
+                              check "")))  ;makes sure code is not nil
 
         (and (= op "load-file") file (re-matches #".+\.cljx$" file-name))
-        (h (assoc msg :file (parse/repl-parse file rules)))
+        (h (assoc msg :file (if-let [check (parse/repl-parse file rules)]
+                              check "")))
 
         :else (h msg)))))
-
 
 (set-descriptor! #'wrap-chenex
   {:requires #{"clone"}

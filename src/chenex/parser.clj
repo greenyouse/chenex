@@ -7,7 +7,7 @@
   "This parser captures feature expressions and does inner transformations"
   (insta/parser "
 PROGRAM = (FEATURE-EXPR* FLUFF*)* | SPACE
-<FLUFF> = #'(?:(?!#\\+|#\\-).|\\s*)*'
+<FLUFF> = #'(?:(?!\\[#\\+|\\[#\\-).|\\s*)*'
 
 (* inlined the whitespaces + comments for speed *)
 <SPACE> = #'^[\\s*,]*' | #'^(?=;|#!).*[^\\n]' SPACE*
@@ -19,7 +19,7 @@ PROGRAM = (FEATURE-EXPR* FLUFF*)* | SPACE
 CHENEX-READER-LITERAL = #'#[+-]'
 FEATURES = #'^\\[[^\\]]*(?:\\\\.[^\\]]*)*]'
 CONTENT = SEQ | #'[a-zA-Z0-9\\-\\.]+' | '\"' #'(:?(?!\\\").|\\s*)*' '\"' (* may need to tweak second part here *)
-FEATURE-EXPR = CHENEX-READER-LITERAL <SPACE>* FEATURES <SPACE>* CONTENT <SPACE>*
+FEATURE-EXPR = <'['> CHENEX-READER-LITERAL <SPACE>* FEATURES <SPACE>* CONTENT <SPACE>* <']'>
 "))
 
 (defn- do-transforms
