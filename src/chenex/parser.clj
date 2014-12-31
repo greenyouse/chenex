@@ -6,22 +6,20 @@
   "This parser captures feature expressions and does inner transformations"
   (insta/parser "
 PROGRAM = (FEATURE-EXPR* FLUFF*)* | SPACE
-<FLUFF> = #'(?:(?!\\(chenex\\/include|\\(chenex\\/ex).|\\s*)*'
+<FLUFF> = #'(?:(?!\\(chenex\\/include\\!|\\(chenex\\/ex\\!).|\\s*)*'
 
 (* inlined the whitespaces + comments for speed *)
 <SPACE> = #'^[\\s*,]*' | #'^(?=;|#!).*[^\\n]' SPACE*
 
-(* TODO: could delimit with chinese UTF to avoid parsing sexprs, faster! *)
-(* Unidiomatic but makes the parser fast (^_^)/ *)
-<CODE> = #'(?:(?!\\'\u6D3B\u6CC9).|\\s*)*'
+(* Unidiomatic but makes the parser fast (^_^)/ ちぇええええええん！*)
+<CODE> = #'(?:(?!\\'ﾊﾟﾌﾊﾟﾌ).|\\s*)*'
 
 CHENEX-READER-LITERAL = 'chenex/include!' | 'chenex/ex!'
 FEATURES = #'^\\[[^\\]]*(?:\\\\.[^\\]]*)*]'
-CONTENT = <'\\'\u6D3B\u6CC9'> CODE <'\\'\u6d3b\u6cc9'>
+CONTENT = <'\\'ﾊﾟﾌﾊﾟﾌ'> CODE <'\\'ﾊﾟﾌﾊﾟﾌ'>
 FEATURE-EXPR = <'('> CHENEX-READER-LITERAL <SPACE>* FEATURES <SPACE>*
                CONTENT <SPACE>* <')'>
 "))
-
 
 (defn- do-transforms
   "Takes a vector of transform fns and adds them to a transformation"
