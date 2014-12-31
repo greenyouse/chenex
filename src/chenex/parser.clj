@@ -2,36 +2,36 @@
   (:require [instaparse.core :as insta]
             [clojure.java.io :as io]))
 
-;; TODO: make it faster, moar speed hacks!
 (def ^:private fe-parser
   "This parser captures feature expressions and does inner transformations"
   (insta/parser "
 PROGRAM = (FEATURE-EXPR* FLUFF*)* | SPACE
-<FLUFF> = #'(?:(?!\\[#\\+|\\[#\\-).|\\s*)*'
+<FLUFF> = #'(?:(?!\\(chenex\\/include|\\(chenex\\/ex).|\\s*)*'
 
 (* inlined the whitespaces + comments for speed *)
 <SPACE> = #'^[\\s*,]*' | #'^(?=;|#!).*[^\\n]' SPACE*
 
-<SEXPR> = (SEQ SPACE)* | (SYMS SPACE)*
-<SEQ> = '(' (SYMS SEXPR)* ')' | '[' (SYMS SEXPR)* ']' | '{' (SYMS SEXPR)* '}' | '#{' (SYMS SEXPR)* '}'
-<SYMS> = #'(?:(?!\\(|\\)|\\[|\\]|\\{|\\}).|\\s*)*'
+(* TODO: could delimit with chinese UTF to avoid parsing sexprs, faster! *)
+(* Unidiomatic but makes the parser fast (^_^)/ *)
+<CODE> = #'(?:(?!\\'\u6D3B\u6CC9).|\\s*)*'
 
-CHENEX-READER-LITERAL = #'#[+-]'
+CHENEX-READER-LITERAL = 'chenex/include!' | 'chenex/ex!'
 FEATURES = #'^\\[[^\\]]*(?:\\\\.[^\\]]*)*]'
-CONTENT = SEQ | #'[a-zA-Z0-9\\-\\.]+' | '\"' #'(:?(?!\\\").|\\s*)*' '\"' (* may need to tweak second part here *)
-FEATURE-EXPR = <'['> CHENEX-READER-LITERAL <SPACE>* FEATURES <SPACE>* CONTENT <SPACE>* <']'>
+CONTENT = <'\\'\u6D3B\u6CC9'> CODE <'\\'\u6d3b\u6cc9'>
+FEATURE-EXPR = <'('> CHENEX-READER-LITERAL <SPACE>* FEATURES <SPACE>*
+               CONTENT <SPACE>* <')'>
 "))
+
 
 (defn- do-transforms
   "Takes a vector of transform fns and adds them to a transformation"
   [coll]
   (apply comp (reverse coll)))
 
-;; TODO: Preserving original spaces+comments is tough, just adding \n\n to content for now
 (defn- feature-transform [inclusive? listed-features content feature-set]
-  ;; gives the intersection of feature-expr (listed-features) + current feature rule (feature-set)
+  "Gives the intersection of the feature-expr (listed-features) and
+  the current feature rule (feature-set)"
   (let [features  (->> listed-features
-                       (map str)
                        (filterv #(feature-set %))
                        (set))]
     (cond
@@ -43,12 +43,13 @@ FEATURE-EXPR = <'['> CHENEX-READER-LITERAL <SPACE>* FEATURES <SPACE>* CONTENT <S
      :else "")))
 
 (defn- fe-transform [feature-set inner-transforms]
-  {:CHENEX-READER-LITERAL (comp #(= \+ (second %)) str)
+  {:CHENEX-READER-LITERAL (comp #(= "chenex/include!" %) str)
    :FEATURES (comp read-string str)
    :CONTENT (comp str)
    :FEATURE-EXPR (comp (do-transforms inner-transforms)
                        #(feature-transform % %2 %3 feature-set))
    :PROGRAM (comp str)})
+
 
 (def ^:private outer-parser
   "This parser is for outer transformations"
@@ -59,7 +60,8 @@ PROGRAM = (SPACE SEXPR)* | SPACE
 <SPACE> = #'^[\\s*,]*' | #'^(?=;|#!).*[^\\n]' SPACE*
 
 <SEXPR> = (SEQ SPACE)* | (SYMS SPACE)*
-SEQ = '(' (SYMS SEXPR)* ')' | '[' (SYMS SEXPR)* ']' | '{' (SYMS SEXPR)* '}' | '#{' (SYMS SEXPR)* '}'
+SEQ = '(' (SYMS SEXPR)* ')' | '[' (SYMS SEXPR)* ']' | '{' (SYMS SEXPR)* '}' |
+      '#{' (SYMS SEXPR)* '}'
 <SYMS> =  #'(?:(?!\\(|\\)|\\[|\\]|\\{|\\}).|\\s*)*'
 
 "))
@@ -79,13 +81,3 @@ SEQ = '(' (SYMS SEXPR)* ')' | '[' (SYMS SEXPR)* ']' | '{' (SYMS SEXPR)* '}' | '#
             (spit file-out out-t)))
       (do (io/make-parents file-out)
           (spit file-out in-t)))))
-
-(defn repl-parse [code {:keys [_ features inner-transforms outer-transforms]}]
-  (let [in-trans (fe-transform features inner-transforms)
-        in-p (fe-parser code)
-        in-t (insta/transform in-trans in-p)]
-    (if (seq outer-transforms)
-      (let [out-trans (outer-transform outer-transforms)
-            out-t (->> in-t outer-parser (insta/transform out-trans))]
-        out-t)
-      in-t)))

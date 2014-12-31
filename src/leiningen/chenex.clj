@@ -2,32 +2,12 @@
   (:require [leiningen.help :as lhelp]
             [leiningen.core.main :as lmain]
             [leiningen.core.eval :refer (eval-in-project)]
-            [leiningen.core.project :as project]
+            [clojure.pprint :refer [pprint]]
             [clojure.java.io :as io])
   (:refer-clojure :exclude [compile]))
 
 (defn- yellow-text [msg] (str "\033[33m" msg "\033[0m"))
 (defn- red-text [msg] (str "\033[31m" msg "\033[0m"))
-
-(comment (defn- chenex-eip
-  "Evaluates the given [form] within the context of a [project]. A single
-  form that is to be run beforehand (for requires, etc) is specified by
-  [init].
-  This variant of eval-in-project implicitly adds the current :plugin dep on
-  chenex to the main :dependencies vector of the project, as well as specifying
-  that the eval should happen in-process in a new classloader (faster!)."
-  [project init form]
-  (eval-in-project
-   (-> project
-       (project/merge-profiles [{:dependencies [chenex.plugin/chenex-coordinates]}])
-       ;; If the user has configured chenex to be run using :prep-tasks, this removes its
-       ;; entry so eip doesn't try to circularly invoke chenex again.
-       (update-in [:prep-tasks]
-                  (partial remove #(or (= "chenex" (str %))
-                                       (and (sequential? %)
-                                            (= "chenex" (str (first %))))))))
-   form
-   init)))
 
 (defn- compile
   "Compiles cljx files into new formats"
@@ -48,25 +28,37 @@
 ;;happy to add more templates here
 (defn- build
   "Writes a basic build template, options are: cljx, browserific"
-  [project temp]
+  [temp]
   (lmain/info (yellow-text "Writing a new chenex configuration.\n"))
   (let [t# (first temp)
         loc# (try (-> (str "chenex/templates/" t# ".clj") io/resource slurp)
                   (catch Exception _ (lmain/abort (red-text (str "Chenex Error: template " (first temp) " not found.\n
 Options are: cljx, browserific")))))]
-    (do (io/make-parents "builds/chenex-builds.clj")
+    (do (io/make-parents "builds/chenex-build.clj")
         (spit "builds/chenex-build.clj" loc#))))
+
+;; TODO: could improve this a bit more by adding multiple envs
+(defn- repl
+  "Sets a new target environment for the REPL iteractively. Enter the name
+  of a chenex feature environement"
+  [env]
+  (lmain/info (yellow-text "Changing the chenex REPL.\n"))
+  (let [e# (->> env first keyword list set)]
+    (try (do (io/make-parents "builds/chenex-repl.clj")
+             (spit "builds/chenex-repl.clj" (str e#)))
+         (catch Exception _ (lmain/abort (red-text "Chenex Error: enter the name of a chenex feature\n\n"))))))
 
 (defn chenex
   "Run the chenex compiler"
-  {:help-arglists '([compile build])
-   :subtasks [#'compile #'build]}
+  {:help-arglists '([compile build repl])
+   :subtasks [#'compile #'build #'repl]}
   ([project]
      (lmain/abort
       (lhelp/help-for "chenex")))
   ([project subtask & args]
      (case subtask
        "compile" (compile project)
-       "build" (build project args)
+       "build" (build args)
+       "repl" (repl args)
        (lmain/abort (red-text (str "Chenex Error: Subtask " subtask " not found."))
                     (lhelp/subtask-help-for "chenex")))))

@@ -4,6 +4,7 @@
   :license {:name "BSD 2-Clause"
             :url "http://www.opensource.org/licenses/BSD-2-Clause"}
 
-  :dependencies [[instaparse "1.3.4"]]
+  :dependencies [[org.clojure/clojure "1.6.0"]
+                 [instaparse "1.3.4"]]
 
   :eval-in-leiningen true)
