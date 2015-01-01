@@ -1,24 +1,38 @@
 (ns browserific
-  (:require [clojure.test :refer :all]))
+  (:require [chenex.macros :as chenex]))
 
 ;; some tests to test the browserific use case
-(chenex/include! [:ios :firefoxos] '活泉(println "I'm in ios + firefoxos")'活泉)
+(chenex/include! [:ios :firefoxos] 'ﾊﾟﾌﾊﾟﾌ(println "I'm in ios + firefoxos")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/include! [:b] '活泉(println "browsers ho!")'活泉)
+(chenex/include! [:b] 'ﾊﾟﾌﾊﾟﾌ(println "browsers ho!")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/ex! [:d] '活泉(println "browsers and mobiles")'活泉)
+(chenex/ex! [:d] 'ﾊﾟﾌﾊﾟﾌ(println "browsers and mobiles")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/include! [:osx32 :linux32] '活泉(println "osx32 and linux32")'活泉)
+(chenex/include! [:osx32 :linux32] 'ﾊﾟﾌﾊﾟﾌ(println "osx32 and linux32")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/include! [:gnu/linux] '活泉(println "oops")'活泉)
+(chenex/include! [:gnu/linux] 'ﾊﾟﾌﾊﾟﾌ(println "oops")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/ex! [:safari :d] '活泉(println "neither in safari nor desktops")'活泉)
+(chenex/ex! [:safari :d] 'ﾊﾟﾌﾊﾟﾌ(println "neither in safari nor desktops")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/include! [:b :d :m] '活泉(println "I'm going everywhere")'活泉)
+(chenex/include! [:b :d :m] 'ﾊﾟﾌﾊﾟﾌ(println "I'm going everywhere")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/ex! [:b :d :m] '活泉(println "and I'm going nowhere")'活泉)
+(chenex/ex! [:b :d :m] 'ﾊﾟﾌﾊﾟﾌ(println "and I'm going nowhere")'ﾊﾟﾌﾊﾟﾌ)
 
-(chenex/include! [:android] '活泉"non-sexpr in android"'活泉)
+(chenex/include! [:android] 'ﾊﾟﾌﾊﾟﾌ"non-sexpr in android"'ﾊﾟﾌﾊﾟﾌ)
 
 (defn woot []
   (println "It's working!"))
+
+;; now some compound tests
+(chenex/in-case! [:firefox] 'ﾊﾟﾌﾊﾟﾌ (println "either in firefox")'ﾊﾟﾌﾊﾟﾌ
+                 [:d] 'ﾊﾟﾌﾊﾟﾌ (println "or desktops")'ﾊﾟﾌﾊﾟﾌ
+                 [:m] 'ﾊﾟﾌﾊﾟﾌ (println "or mobile")'ﾊﾟﾌﾊﾟﾌ
+                 :else 'ﾊﾟﾌﾊﾟﾌ (println "this goes wherever else")'ﾊﾟﾌﾊﾟﾌ)
+
+;; this is the most common use for ex-case!
+(chenex/ex-case! [:firefox] 'ﾊﾟﾌﾊﾟﾌ (println "everywhere not firefox")'ﾊﾟﾌﾊﾟﾌ
+                 :else 'ﾊﾟﾌﾊﾟﾌ (println "here's code for firefox")'ﾊﾟﾌﾊﾟﾌ )
+
+(chenex/ex-case! [:m :d] 'ﾊﾟﾌﾊﾟﾌ (println "everywhere not mobile")'ﾊﾟﾌﾊﾟﾌ
+                 [:firefox] 'ﾊﾟﾌﾊﾟﾌ (println "this throws an error, see why?") 'ﾊﾟﾌﾊﾟﾌ
+                 :else 'ﾊﾟﾌﾊﾟﾌ (println "here's code for mobile + desktop")'ﾊﾟﾌﾊﾟﾌ )
