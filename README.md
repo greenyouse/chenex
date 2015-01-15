@@ -8,49 +8,91 @@ remain true to the cljx implementation while adding a few new features
 (honk honk!) and cljx. 
 
 
-This project has not been released yet, so it will need to be cloned and
-installed manually for now.
-
 ## Feature Expressions 
 
 If you're used to cljx, then feature expressions will have a slightly
 new syntax:
 
 ```clj
-#+ [clj] (+ 1 1)
+(chenex/include! [:clj]  (+ 1 1))
 ```
 
-The `#+` operator is for adding code to some platform. In the case
-above, we added `(+ 1 1)` to Clojure. Negation may also be used with
-`#-` to omit the code from some platform. For example:
+The `chenex/include!` function is for adding code to some platform. In
+the case above, we added `(+ 1 1)` to Clojure. Negation may also be used
+with `chenex/ex!` to omit the code from some platform. For example:
 
 ```clj
-#- [clj] (+ 1 1)
+(chenex/ex! [:clj] (+ 1 1))
 ```
 
-The `#-` will cause the code to be written everywhere but in
+The `chenex/ex!` will cause the code to be written everywhere but in
 Clojure.  Assuming that Clojure and ClojureScript are the only two
 platforms we're targeting, this means the code will only show up in our
 ClojureScript code.
 
 
-Now let's try an example with more platforms to display the union
+Now let's try an example with more platforms to display the include
 feature. Imagine that we have a project that targets osx, linux, and
-windows computers. We can use unions in feature expressions to build
+windows computers. We can use includes in feature expressions to build
 code for multiple platforms:
 
 ```clj
-#+ [windows linux] (+ 1 1)
+(chenex/include! [:windows :linux] (+ 1 1))
 ```
 
 This puts the code in windows and linux builds but not in osx. An
 equivalent expression with negation would be:
 
 ```clj
-#- [osx] (+ 1 1)
+(chenex/ex! [:osx] (+ 1 1))
 ```
 
-All cross-platform code must go in `.cljx` files.
+
+What if we wanted different code for osx, linux, and windows? For
+targeting multiple envs there are in-case! (include case) and ex-case!
+(exclude case).
+
+Here is what this may look like with using in-case!:
+
+```clj
+(chenex/in-case! [:windows]  (println "I'm in windows") 
+                 [:osx]  (println "Shows in osx") 
+                 :else  (println "This is linux"))
+```
+
+The ex-case! is much weaker and should only be used for excluding some
+group of platforms while offering alternative code with an `:else`
+clause. I'd suggest sticking to in-case! for most complex expressions. An
+ex-case! use looks like this:
+
+```clj
+(chenex/ex-case! [:windows]  (println "In osx and linux) 
+                 :else  (println "This is in windows"))
+```
+
+
+Like in cljx, all cross-platform code must go in `.cljx` files.
+
+## REPL
+
+The REPL also must have a special file at `builds/chenex-repl.clj`
+that contains a set one or more chenex builds. For example:
+
+```clj
+#{:ios :m}
+```
+
+This can be set dynamically while working by either editing the
+`chenex-repl.clj` file by hand or doing this:
+
+```sh
+$ lein chenex repl :ios
+```
+
+This is an ugly hack to make the REPL work. Any ideas for how to load
+the REPL env without this would be greatly appreciated! For now it's
+probably easier to just edit the file by hand.
+
 
 ## project.clj
 
@@ -81,8 +123,10 @@ look like:
 The only new item is `:inner-transforms`, which sequentially applies any
 functions to the code inside of feature expressions. In this case,
 `expand-regexes` and then `inject-fn` would be applied to the source
-code for Clojure files.  The `:outer-transforms` will apply functions
-sequentially to _every_ s-expression in your code.
+code for Clojure expressions.  
+
+The `:outer-transforms` are supposed to apply functions sequentially 
+to _every_ s-expression in your code but they're not done quite yet.
 
 See the original cljx documentation for information about the options:
 [https://github.com/lynaghk/cljx](https://github.com/lynaghk/cljx)
@@ -112,12 +156,10 @@ $ lein auto chenex compile
 ```
 
 If you're going to do a Clojure/ClojureScript build, I have written a
-couple default templates to save having to write one yourself. Just run:
+default templates to save having to write one yourself. Just run:
 
 ```sh
 $ lein chenex build cljx 
-or
-$ lein chenex build browserific
 ```
 
 That creates a `builds/chenex-builds.clj` with a basic configuration
@@ -154,46 +196,25 @@ To have leiningen pick up the build, add the following to your
 project.clj:
 
 ```clj
-:chenex {:builds ~(-> "chenex-builds.clj" slurp read-string)}
+:chenex {:builds ~(-> "builds/chenex-builds.clj" slurp read-string)}
 ```
 
 This feature is a little experimental, so if you have suggestions for
-the template, let me know.
+the template or want to add a new one, let me know.
 
 
-## REPL Problems
-
-REPL middleware is done but some code will not work when evaluating from
-a source file. 
-
-To display what I'm talking about, pretend you're typing this
-feature expression in: `#+ [firefox] (+ 1 1)`.
-
-This is a top level feature expression and only `#+ [firefox]` will be
-sent to the REPL. This isn't really a problem with the middleware so
-much as with the nrepl server software like `Cider`. They weren't
-designed with feature expressions in mind (not their fault just
-annoying).  
-
-To get around this limitation, grab the code and place it into the REPL
-directly. It's not perfect but it does work. 
-
-Hopefully we'll be able to add support to various nrepl server libraries
-in the future.
-
-
-The REPL also must have a special file at `builds/chenex-repl.clj`
-that contains the rules for _one_ chenex build. For example:
+For things to work properly, you must require `chenex.macros` as
+`chenex`.
 
 ```clj
-{:filetype "clj"
- :features #{"clj"}
- :inner-transforms []
- :outer-transforms []}
+;; cljs
+(ns your.project
+    (:require-macros [chenex.macros :as chenex])
+    
+;;clj    
+(ns your.project
+    (:require [chenex.macros :as chenex])
 ```
-
-This is another ugly hack to make the REPL work. Any help to solve this
-nREPL trouble would be greatly appreciated!
 
 ## Projects Using chenex
 
@@ -202,7 +223,6 @@ nREPL trouble would be greatly appreciated!
 ## Thanks
 
 A huge thanks to [cljx](https://github.com/lynaghk/cljx),
-[instaparse](https://github.com/Engelberg/instaparse),
 [lein-auto](https://github.com/weavejester/lein-auto), and
 [sjacket](https://github.com/cgrand/sjacket), without which this project
 would not exist. 

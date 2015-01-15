@@ -32,17 +32,18 @@
               (ex! (first expr) _ (nth expr 2) _))) ;obviously change this!
        (filterv (complement nil?))))
 
-;; This is a bit bigger than clojure's cond+case because it must detect ambigous
-;; clauses. For example, including a platform twice in the same inclusive statement
-;; should cause an error, not just return the first valid clause. Similarly, having
-;; more than two clauses in exclusive that are not members of the feature set will
-;; create an ambiguity error. The latter is goofy and renders most compoud, exclusive
-;; statements useless. Watch out!
+;; This is a bit bigger than clojure's cond+case because it must detect
+;; ambigous clauses. For example, including a platform twice in the same
+;; inclusive statement should cause an error, not just return the first
+;; valid clause. Similarly, having more than two clauses in exclusive that
+;; are not members of the feature set will create an ambiguity error. The
+;; latter is goofy and renders most compoud, exclusive statements useless.
+;; Watch out!
 
 (defn- parse-case [inclusive? clauses]
-  (let [else?# (if (keyword? (nth (reverse clauses) 3)) ;else clause detected
+  (let [else? (if (keyword? (nth (reverse clauses) 3)) ;else clause detected
                  true false)
-        conditions# (if else?#
+        conditions (if else?
                       (-> clauses ;pull out else clause
                           reverse
                           (nthrest 4)
@@ -50,9 +51,9 @@
                       clauses)
         valid-fe# (if inclusive? (include-clauses conditions#)
                       (exclude-clauses conditions#))]
-    (case (count valid-fe#)
-      0 (if else?# (-> clauses reverse (nth 1))) ;else or nil
-      1 (first valid-fe#)
+    (case (count valid-fe)
+      0 (if else? (-> clauses reverse (nth 1))) ;else or nil
+      1 (first valid-fe)
       (throw (Exception. "Chenex Error: ambiguous expressions found")))))
 
 (defmacro in-case!
@@ -61,7 +62,7 @@
   (parse-case true coll))
 
 (defmacro ex-case!
-  "Syntatitc sugar over ex! to allow for case-like statements. Be careful
-  not to include multiple valid expressions. This happens easily with ex-case!."
+  "Syntactic sugar over ex! to allow for case-like statements. Be careful
+  not to include multiple valid expressions."
   [& coll]
   (parse-case false coll))
