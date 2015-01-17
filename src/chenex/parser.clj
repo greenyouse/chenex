@@ -47,7 +47,6 @@
                                  inclusive? plats expr)))
                       [] relevant)
           any-fe (filter #(not= nil %) parsed-fe)]
-      (println (count any-fe))
       (cond
         (< 1 (count any-fe)) (throw (Exception. (str "Chenex Error ambiguous expression found: " clauses)))
         (not (empty? any-fe)) (first any-fe) ;take the first plat from list
@@ -68,7 +67,7 @@
                              (case-transform feature-set))
                        true (rest fe))
       chenex/ex-case! ((comp (do-transforms inner-transforms)
-                             (cond-transform feature-set))
+                             (case-transform feature-set))
                        false (rest fe)))))
 
 
@@ -82,8 +81,10 @@
   (cond
     (and (list? coll)
       (re-find #"chenex" (str (first coll)))) (t coll)
-      (sequential? coll) (if (vector? coll)
-                           (into [] (parse-nodes t coll))
+      (sequential? coll) (cond
+                           (empty? coll) coll
+                           (vector? coll) (into [] (parse-nodes t coll))
+                           :else
                            (parse-nodes t coll))
     :else
     coll))
@@ -117,6 +118,7 @@
 
 ;; TODO: try getting outer transforms to work later. Second parser will
 ;;  be required.
+;; TODO: would be nice to filter out the nils and pretty print the output
 (defn start-parse [file-in file-out features inner-transforms
                    outer-transforms]
   (let [in-p (->> file-in

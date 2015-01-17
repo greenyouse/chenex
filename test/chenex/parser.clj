@@ -91,3 +91,6 @@
                      (println (str \"Hello \" p))))")))))
 
 (comment (run-tests))
+
+;; TODO: make a test for the samples?
+(comment (start-parse "test/samples/browserific.cljx" "browserific.cljs" #{:firefox :b} [] []))
