@@ -1,20 +1,20 @@
 (ns cljx
   (:require [chenex.macros :as chenex]))
 
-;; doing out basic clojure/clojurescript, cljx style
-(chenex/include [:clj] (println "I'm a clojure file"))
+;; doing basic clojure/clojurescript, cljx style
+(chenex/in! [:clj] (println "I'm a clojure file"))
 
 (chenex/ex! [:cljs] (println "I'm a clojure file too"))
 
-(chenex/include [:cljs] (println "Nothing but clojurescript here"))
+(chenex/in! [:cljs] (println "Nothing but clojurescript here"))
 
 (chenex/ex! [:clj] (println "More cljs"))
 
-(chenex/include [:clj :cljs] (println "This is in both!"))
+(chenex/in! [:clj :cljs] (println "This is in both!"))
 
 (chenex/ex! [:cljs :clj] (println "And this just disappears... be careful"))
 
-(chenex/include [:clj]
+(chenex/in! [:clj]
                 (println "Clojure with comments saved"))
 
 (chenex/ex! [:clj]

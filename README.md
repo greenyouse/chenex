@@ -14,10 +14,10 @@ If you're used to cljx, then feature expressions will have a slightly
 new syntax:
 
 ```clj
-(chenex/include! [:clj]  (+ 1 1))
+(chenex/in! [:clj]  (+ 1 1))
 ```
 
-The `chenex/include!` function is for adding code to some platform. In
+The `chenex/in!` function is for adding code to some platform. In
 the case above, we added `(+ 1 1)` to Clojure. Negation may also be used
 with `chenex/ex!` to omit the code from some platform. For example:
 
@@ -37,7 +37,7 @@ windows computers. We can use includes in feature expressions to build
 code for multiple platforms:
 
 ```clj
-(chenex/include! [:windows :linux] (+ 1 1))
+(chenex/in! [:windows :linux] (+ 1 1))
 ```
 
 This puts the code in windows and linux builds but not in osx. An
@@ -71,7 +71,8 @@ ex-case! use looks like this:
 ```
 
 
-Like in cljx, all cross-platform code must go in `.cljx` files.
+Like in cljx, all cross-platform code must go in `.cljx` files. Any
+non-cljx files will be copied over without any special parsing.
 
 ## REPL
 

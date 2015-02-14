@@ -5,14 +5,6 @@
 
 ;; TODO: Explain the case execution order in more detail in README
 
-;;; truth table of feature exprs :D
-;; P | Q | P <-> Q
-;; ----------------------
-;; T | F | F
-;; T | T | T
-;; F | F | T
-;; F | T | F
-
 ;;; feature expression permuatations:
 ;; when true and in expr -> first valid expr (true)
 ;; when true and not in expr -> else (fail)
@@ -94,3 +86,7 @@
 
 ;; TODO: make a test for the samples?
 (comment (start-parse "test/samples/browserific.cljx" "browserific.cljs" #{:firefox :b} [] []))
+
+;; for testing the whole system (make this better)
+(comment (with-private-fns [chenex.core [parse-src]]
+            (parse-src "test/samples" "intermediate" "woot" #{:clj} [] [])))

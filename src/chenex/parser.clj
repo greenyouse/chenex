@@ -57,7 +57,7 @@
   [feature-set inner-transforms]
   (fn [fe]
     (case (first fe)
-      chenex/include! ((comp (do-transforms inner-transforms)
+      chenex/in! ((comp (do-transforms inner-transforms)
                             (cond-transform feature-set))
                        true (second fe) (first (nthrest fe 2)))
       chenex/ex! ((comp (do-transforms inner-transforms)

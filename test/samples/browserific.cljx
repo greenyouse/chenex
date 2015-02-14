@@ -2,23 +2,23 @@
   (:require [chenex.macros :as chenex]))
 
 ;; some code to show the browserific use case
-(chenex/include! [:ios :firefoxos] (println "I'm in ios + firefoxos"))
+(chenex/in! [:ios :firefoxos] (println "I'm in ios + firefoxos"))
 
-(chenex/include! [:b] (println "browsers ho!"))
+(chenex/in! [:b] (println "browsers ho!"))
 
 (chenex/ex! [:d] (println "browsers and mobiles"))
 
-(chenex/include! [:osx32 :linux32] (println "osx32 and linux32"))
+(chenex/in! [:osx32 :linux32] (println "osx32 and linux32"))
 
-(chenex/include! [:gnu/linux] (println "oops"))
+(chenex/in! [:gnu/linux] (println "oops"))
 
 (chenex/ex! [:safari :d] (println "neither in safari nor desktops"))
 
-(chenex/include! [:b :d :m] (println "I'm going everywhere"))
+(chenex/in! [:b :d :m] (println "I'm going everywhere"))
 
 (chenex/ex! [:b :d :m] (println "and I'm going nowhere"))
 
-(chenex/include! [:android] "non-sexpr in android")
+(chenex/in! [:android] "non-sexpr in android")
 
 (defn woot []
   (println "It's working!"))

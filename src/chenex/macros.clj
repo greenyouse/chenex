@@ -1,6 +1,7 @@
 (ns chenex.macros)
 
-(defmacro include!
+;; TODO: shorten this to in!
+(defmacro in!
   "Outputs code for the specified platforms. Used at the REPL"
   [platforms _ body _]
   (let [chenex-env (-> "builds/chenex-repl.clj" slurp read-string)]
@@ -21,7 +22,7 @@
   (->> coll
        (partition 4)
        (map (fn [expr]
-              (include! (first expr) _ (nth expr 2) _))) ;obviously change this!
+              (in! (first expr) _ (nth expr 2) _))) ;obviously change this!
        (filterv (complement nil?))))
 
 (defn- exclude-clauses
@@ -43,21 +44,21 @@
 (defn- parse-case [inclusive? clauses]
   (let [else? (if (keyword? (nth (reverse clauses) 3)) ;else clause detected
                  true false)
-        conditions (if else?
+        conditions# (if else?
                       (-> clauses ;pull out else clause
-                          reverse
-                          (nthrest 4)
-                          reverse)
+                        reverse
+                        (nthrest 4)
+                        reverse)
                       clauses)
         valid-fe# (if inclusive? (include-clauses conditions#)
                       (exclude-clauses conditions#))]
-    (case (count valid-fe)
+    (case (count valid-fe#)
       0 (if else? (-> clauses reverse (nth 1))) ;else or nil
-      1 (first valid-fe)
+      1 (first valid-fe#)
       (throw (Exception. "Chenex Error: ambiguous expressions found")))))
 
 (defmacro in-case!
-  "Syntactic sugar to have case-like include! statements."
+  "Syntactic sugar to have case-like in! statements."
   [& coll]
   (parse-case true coll))
 
