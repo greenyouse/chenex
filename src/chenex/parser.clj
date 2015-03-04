@@ -103,6 +103,7 @@
 ;;; Interface
 
 ;; FIXME: `ns` will kill the parser if it's not in the first sexpr. Why?
+;; FIXME: handle errors without killing the process
 (defn- prep
   "Helper fn that wraps code in a vector before passing it to parse-nodes."
   [feature-set inner-transforms expr]
