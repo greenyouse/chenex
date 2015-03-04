@@ -217,6 +217,14 @@ For things to work properly, you must require `chenex.macros` as
     (:require [chenex.macros :as chenex])
 ```
 
+The compiler also strips any metadata that uses the `^:` reader
+macro. To get around this use `with-meta`. I made a little helper fn in
+`chenex.helpers` for exports because they're so common:
+
+```clj
+(chenex.helpers/export (defn my-fn [] (+ 1 1)))
+```
+
 ## Projects Using chenex
 
 * [browserific](https://github.com/greenyouse/browserific)
