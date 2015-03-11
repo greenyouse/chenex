@@ -10,8 +10,8 @@ remain true to the cljx implementation while adding a few new features
 
 ## Feature Expressions 
 
-If you're used to cljx, then feature expressions will have a slightly
-new syntax:
+If you're used to cljx, then chenex feature expressions will have a
+slightly new syntax:
 
 ```clj
 (chenex/in! [:clj]  (+ 1 1))
@@ -25,10 +25,10 @@ with `chenex/ex!` to omit the code from some platform. For example:
 (chenex/ex! [:clj] (+ 1 1))
 ```
 
-The `chenex/ex!` will cause the code to be written everywhere but in
+The `chenex/ex!` above will cause the code to be written everywhere but in
 Clojure.  Assuming that Clojure and ClojureScript are the only two
-platforms we're targeting, this means the code will only show up in our
-ClojureScript code.
+platforms we're targeting, this means the code will only show up in 
+ClojureScript.
 
 
 Now let's try an example with more platforms to display the include
@@ -66,7 +66,7 @@ clause. I'd suggest sticking to in-case! for most complex expressions. An
 ex-case! use looks like this:
 
 ```clj
-(chenex/ex-case! [:windows]  (println "In osx and linux) 
+(chenex/ex-case! [:windows]  (println "In osx and linux") 
                  :else  (println "This is in windows"))
 ```
 
@@ -77,23 +77,18 @@ non-cljx files will be copied over without any special parsing.
 ## REPL
 
 The REPL also must have a special file at `builds/chenex-repl.clj`
-that contains a set one or more chenex builds. For example:
+that contains a set of one or more chenex builds. For example:
 
 ```clj
 #{:ios :m}
 ```
 
 This can be set dynamically while working by either editing the
-`chenex-repl.clj` file by hand or doing this:
+`chenex-repl.clj` file by hand or with:
 
 ```sh
 $ lein chenex repl :ios
 ```
-
-This is an ugly hack to make the REPL work. Any ideas for how to load
-the REPL env without this would be greatly appreciated! For now it's
-probably easier to just edit the file by hand.
-
 
 ## project.clj
 
@@ -104,8 +99,8 @@ chenex to work correctly:
 :profiles {:default [:base :system :user :provided :dev :plugin.chenex/default]}
 ```
 
-This is a temporary workaround to inject dependecies for chenex and
-hopefully will go away around the time of Leiningen 3.0.0.
+(This is a temporary workaround to inject dependecies for chenex and
+hopefully will go away around the time of Leiningen 3.0.0.)
 
 The `:builds` option in your `project.clj` looks almost identical to the
 `:builds` from cljx. Here is what an example build for Clojure might
@@ -124,7 +119,8 @@ look like:
 The only new item is `:inner-transforms`, which sequentially applies any
 functions to the code inside of feature expressions. In this case,
 `expand-regexes` and then `inject-fn` would be applied to the source
-code for Clojure expressions.  
+code for Clojure expressions. (Still have to test `:inner-transforms`,
+probably not done yet)
 
 The `:outer-transforms` are supposed to apply functions sequentially 
 to _every_ s-expression in your code but they're not done quite yet.
@@ -150,14 +146,14 @@ $ lein chenex compile
 ```
 
 For running chenex with auto (via
-[`lein-auto`](https://github.com/weavejester/lein-auto)), do: 
+[lein-auto](https://github.com/weavejester/lein-auto)), do: 
 
 ```sh
 $ lein auto chenex compile
 ```
 
 If you're going to do a Clojure/ClojureScript build, I have written a
-default templates to save having to write one yourself. Just run:
+default template to save some time. Just run:
 
 ```sh
 $ lein chenex build cljx 
@@ -218,12 +214,7 @@ For things to work properly, you must require `chenex.macros` as
 ```
 
 The compiler also strips any metadata that uses the `^:` reader
-macro. To get around this use `with-meta`. I made a little helper fn in
-`chenex.helpers` for exports because they're so common:
-
-```clj
-(chenex.helpers/export (defn my-fn [] (+ 1 1)))
-```
+macro. To get around this use `with-meta`.
 
 ## Projects Using chenex
 
