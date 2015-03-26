@@ -1,3 +1,3 @@
 (ns greenyouse.chenex
   "For easier cljs interop"
-  (:require-macros [chenex]))
+  (:require-macros [greenyouse.chenex]))

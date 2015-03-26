@@ -201,11 +201,11 @@ This feature is a little experimental, so if you have suggestions for
 the template or want to add a new one, let me know.
 
 
-For things to work properly, you must require `chenex`. 
+For things to work properly, you must require `chenex` like this:
 
 ```clj
 (ns your.project
-    (:require chenex)
+    (:require [greenyouse.chenex :as chenex])
 ```
 
 The compiler also strips any metadata that uses the `^:` reader
