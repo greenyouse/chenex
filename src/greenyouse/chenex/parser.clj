@@ -1,4 +1,4 @@
-(ns chenex.parser
+(ns greenyouse.chenex.parser
   (:require [clojure.java.io :as io]
             [clojure.string :as s]))
 

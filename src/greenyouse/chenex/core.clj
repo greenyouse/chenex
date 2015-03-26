@@ -1,5 +1,5 @@
-(ns chenex.core
-  (:require [chenex.parser :as p]
+(ns greenyouse.chenex.core
+  (:require [greenyouse.chenex.parser :as p]
             [clojure.string :as st]
             [clojure.java.io :as io]
             [clojure.pprint :refer [pprint]])

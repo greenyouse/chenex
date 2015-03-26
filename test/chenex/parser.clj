@@ -1,5 +1,5 @@
 (ns chenex.parser-tests
-  (:require [chenex.parser :refer :all]
+  (:require [greenyouse.chenex.parser :refer :all]
             [clojure.test :refer :all]))
 
 
@@ -17,14 +17,14 @@
      ~@tests))
 
 (deftest cond-transform-test
-  (with-private-fns [chenex.parser [cond-transform]]
+  (with-private-fns [greenyouse.chenex.parser [cond-transform]]
     (is (= ((cond-transform #{:chrome}) true [:chrome] '(+ 1 1)) '(+ 1 1)))
     (is (= ((cond-transform #{:chrome}) true [:firefox] '(+ 1 1)) nil))
     (is (= ((cond-transform #{:chrome}) false [:chrome] '(+ 1 1)) nil))
     (is (= ((cond-transform #{:chrome}) false [:firefox] '(+ 1 1)) '(+ 1 1)))))
 
 (deftest case-transform-test
-  (with-private-fns [chenex.parser [case-transform]]
+  (with-private-fns [greenyouse.chenex.parser [case-transform]]
     (is (= ((case-transform #{:chrome}) true '([:firefox] (+ 1 1)
                                                [:safari :chrome] (+ 2 2)
                                                :else "woot"))
@@ -41,7 +41,7 @@
           '(+ 1 1)))))
 
 (deftest parser-test
-  (with-private-fns [chenex.parser [prep exit]]
+  (with-private-fns [greenyouse.chenex.parser [prep exit]]
     ;; no feature exprs
     (is (= (read-string (exit (prep #{:chrome} []
                                  "(ns woot.content (:refer-clojure :exclude [atom])

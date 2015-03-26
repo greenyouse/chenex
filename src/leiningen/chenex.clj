@@ -18,10 +18,10 @@
       (lmain/info (yellow-text "Compiling files for chenex\n")))
     (if-let [builds# (get-in project [:chenex :builds])]
       (eval-in-project project
-                       `(do (#'chenex.core/run '~builds#)
+                       `(do (#'greenyouse.chenex.core/run '~builds#)
                             ~(when (-> project :eval-in name (= "subprocess"))
                                '(shutdown-agents)))
-                       '(require 'chenex.core))
+                       '(require 'greenyouse.chenex.core))
       (if log#
         (lmain/info (red-text "Chenex Error: No builds detected in project.clj"))))))
 

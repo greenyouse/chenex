@@ -1,4 +1,4 @@
-(ns chenex)
+(ns greenyouse.chenex)
 
 (defmacro in!
   "Outputs code for the specified platforms. Used at the REPL"
