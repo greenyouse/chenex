@@ -7,6 +7,7 @@ remain true to the cljx implementation while adding a few new features
 [chen](http://i1.kym-cdn.com/photos/images/original/000/658/650/820.gif)
 (honk honk!) and cljx. 
 
+[![Clojars Project](http://clojars.org/com.greenyouse/chenex/latest-version.svg)](http://clojars.org/com.greenyouse/chenex)
 
 ## Feature Expressions 
 
@@ -200,17 +201,11 @@ This feature is a little experimental, so if you have suggestions for
 the template or want to add a new one, let me know.
 
 
-For things to work properly, you must require `chenex.macros` as
-`chenex`.
+For things to work properly, you must require `chenex`. 
 
 ```clj
-;; cljs
 (ns your.project
-    (:require-macros [chenex.macros :as chenex])
-    
-;;clj    
-(ns your.project
-    (:require [chenex.macros :as chenex])
+    (:require chenex)
 ```
 
 The compiler also strips any metadata that uses the `^:` reader

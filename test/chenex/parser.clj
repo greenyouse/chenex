@@ -41,7 +41,7 @@
           '(+ 1 1)))))
 
 (deftest parser-test
-  (with-private-fns [chenex.parser [prep exit in-case!]]
+  (with-private-fns [chenex.parser [prep exit]]
     ;; no feature exprs
     (is (= (read-string (exit (prep #{:chrome} []
                                  "(ns woot.content (:refer-clojure :exclude [atom])
@@ -49,10 +49,10 @@
             [cljs.core.logic.pldb :as pl]
             [freactive.dom :as dom]
             [freactive.core :refer [atom cursor]]
-            [cljs.core.async :as async :refer [put! <! chan]])
+            [cljs.core.async :as async :refer [put! <! chan]]
+            chenex)
   (:require-macros [cljs.core.logic :as cm]
                    [cljs.core.logic.pldb :as pm]
-                   [chenex.macros :as chenex]
                    [freactive.macros :refer [rx]]
                    [cljs.core.async.macros :refer [go-loop]]))")))
            (read-string
@@ -61,10 +61,10 @@
             [cljs.core.logic.pldb :as pl]
             [freactive.dom :as dom]
             [freactive.core :refer [atom cursor]]
-            [cljs.core.async :as async :refer [put! <! chan]])
+            [cljs.core.async :as async :refer [put! <! chan]]
+            chenex)
   (:require-macros [cljs.core.logic :as cm]
                    [cljs.core.logic.pldb :as pm]
-                   [chenex.macros :as chenex]
                    [freactive.macros :refer [rx]]
                    [cljs.core.async.macros :refer [go-loop]]))")))
 

@@ -1,9 +1,8 @@
-(ns chenex.macros)
+(ns chenex)
 
-;; TODO: shorten this to in!
 (defmacro in!
   "Outputs code for the specified platforms. Used at the REPL"
-  [platforms _ body _]
+  [platforms body]
   (let [chenex-env (-> "builds/chenex-repl.clj" slurp read-string)]
     `(if (seq (filter #(~chenex-env %) ~platforms))
        ~body)))
@@ -11,7 +10,7 @@
 (defmacro ex!
   "Outputs code for all the platforms availabile except the ones specified.
   Used at the REPL"
-  [platforms _ body _]
+  [platforms body]
   (let [chenex-env (-> "builds/chenex-repl.clj" slurp read-string)]
     `(let [features# (filterv #(~chenex-env %) ~platforms)]
        (if (and (seq ~platforms) (empty? features#))
@@ -22,7 +21,7 @@
   (->> coll
        (partition 4)
        (map (fn [expr]
-              (in! (first expr) _ (nth expr 2) _))) ;obviously change this!
+              (in! (first expr) (nth expr 2))))
        (filterv (complement nil?))))
 
 (defn- exclude-clauses
@@ -30,7 +29,7 @@
   (->> coll
        (partition 4)
        (map (fn [expr]
-              (ex! (first expr) _ (nth expr 2) _))) ;obviously change this!
+              (ex! (first expr) (nth expr 2))))
        (filterv (complement nil?))))
 
 ;; This is a bit bigger than clojure's cond+case because it must detect
