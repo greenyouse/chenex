@@ -113,17 +113,13 @@ look like:
                    :rules {:filetype "clj"
                            :features #{"clj"}
                            :inner-transforms [my.project/expand-regexes
-                                              my.project/inject-fn]
-                           :outer-transforms []}}]}
+                                              my.project/inject-fn]}}]}
 ```
 
 The only new item is `:inner-transforms`, which sequentially applies any
 functions to the code inside of feature expressions. In this case,
 `expand-regexes` and then `inject-fn` would be applied to the source
 code for Clojure expressions. 
-
-The `:outer-transforms` are supposed to apply functions sequentially 
-to _every_ s-expression in your code but they're not done quite yet.
 
 See the original cljx documentation for information about the options:
 [https://github.com/lynaghk/cljx](https://github.com/lynaghk/cljx)
@@ -167,26 +163,22 @@ written for you that looks like this (showing cljx):
   :output-path "target/generated-src"
   :rules {:filetype "clj"
           :features #{"clj"}
-          :inner-transforms []
-          :outer-transforms []}}
+          :inner-transforms []}}
  {:source-paths ["src"]
   :output-path "target/generated-src"
   :rules {:filetype "cljs"
           :features #{"cljs"}
-          :inner-transforms []
-          :outer-transforms []}}
+          :inner-transforms []}}
  {:source-paths ["test"]
   :output-path "target/generated-test"
   :rules {:filetype "clj"
           :features #{"clj"}
-          :inner-transforms []
-          :outer-transforms []}}
+          :inner-transforms []}}
  {:source-paths  ["test"]
   :output-path "target/generated-test"
   :rules {:filetype "cljs"
           :features #{"cljs"}
-          :inner-transforms []
-          :outer-transforms []}}]
+          :inner-transforms []}}]
 ```
 
 To have leiningen pick up the build, add the following to your

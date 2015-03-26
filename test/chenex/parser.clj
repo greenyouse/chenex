@@ -88,7 +88,21 @@
                    (let [p \"firefox\"]
                      (println (str \"Hello \" p))))")))
 
-    ;; with one inner-transforms
+    ;; with one inner-transform
+    (is (= (read-string (exit (prep #{:firefox} [inner-trans1]
+                                "(defn woot [hi]
+  (let [p (chenex/in-case! [:chrome] \"chrome\"
+            [:safari] \"safari\"
+            [:firefox] \"firefox\"
+            [:mobile] \"mobiles\"
+            :else
+            \"woot\")]
+    (println (str \"Hello \" p))))")))
+          (read-string "(defn woot [hi]
+                   (let [p \"Woot\"]
+                     (println (str \"Hello \" p))))")))
+
+    ;; with two inner-transforms
     (is (= (read-string (exit (prep #{:firefox} [inner-trans1 inner-trans2]
                                 "(defn woot [hi]
   (let [p (chenex/in-case! [:chrome] \"chrome\"

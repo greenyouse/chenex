@@ -117,11 +117,8 @@
   [fe]
   (-> fe str (subs 1) s/reverse (subs 1) s/reverse))
 
-;; TODO: try getting outer transforms to work later. Second parser will
-;;  be required.
 ;; TODO: would be nice to filter out the nils and pretty print the output
-(defn start-parse [file-in file-out features inner-transforms
-                   outer-transforms]
+(defn start-parse [file-in file-out features inner-transforms]
   (let [in-p (->> file-in
                slurp
                (prep features inner-transforms)
