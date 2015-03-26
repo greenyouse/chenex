@@ -120,8 +120,7 @@ look like:
 The only new item is `:inner-transforms`, which sequentially applies any
 functions to the code inside of feature expressions. In this case,
 `expand-regexes` and then `inject-fn` would be applied to the source
-code for Clojure expressions. (Still have to test `:inner-transforms`,
-probably not done yet)
+code for Clojure expressions. 
 
 The `:outer-transforms` are supposed to apply functions sequentially 
 to _every_ s-expression in your code but they're not done quite yet.

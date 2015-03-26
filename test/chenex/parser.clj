@@ -11,6 +11,12 @@
 ;; when false and in expr -> else (fail)
 ;; when false and not in expr -> first valid expr (true)
 
+(defn inner-trans1 [expr]
+  (clojure.string/replace expr #"firefox" "Woot"))
+
+(defn inner-trans2 [expr]
+  (clojure.string/replace expr #"Woot" "looking good"))
+
 (defmacro with-private-fns [[ns fns] & tests]
   "Refers private fns from ns and runs tests in context."
   `(let ~(reduce #(conj % %2 `(ns-resolve '~ns '~%2)) [] fns)
@@ -50,7 +56,7 @@
             [freactive.dom :as dom]
             [freactive.core :refer [atom cursor]]
             [cljs.core.async :as async :refer [put! <! chan]]
-            chenex)
+            [greenyouse.chenex :as chenex])
   (:require-macros [cljs.core.logic :as cm]
                    [cljs.core.logic.pldb :as pm]
                    [freactive.macros :refer [rx]]
@@ -62,7 +68,7 @@
             [freactive.dom :as dom]
             [freactive.core :refer [atom cursor]]
             [cljs.core.async :as async :refer [put! <! chan]]
-            chenex)
+            [greenyouse.chenex :as chenex])
   (:require-macros [cljs.core.logic :as cm]
                    [cljs.core.logic.pldb :as pm]
                    [freactive.macros :refer [rx]]
@@ -80,6 +86,20 @@
     (println (str \"Hello \" p))))")))
            (read-string "(defn woot [hi]
                    (let [p \"firefox\"]
+                     (println (str \"Hello \" p))))")))
+
+    ;; with one inner-transforms
+    (is (= (read-string (exit (prep #{:firefox} [inner-trans1 inner-trans2]
+                                "(defn woot [hi]
+  (let [p (chenex/in-case! [:chrome] \"chrome\"
+            [:safari] \"safari\"
+            [:firefox] \"firefox\"
+            [:mobile] \"mobiles\"
+            :else
+            \"woot\")]
+    (println (str \"Hello \" p))))")))
+          (read-string "(defn woot [hi]
+                   (let [p \"looking good\"]
                      (println (str \"Hello \" p))))")))))
 
 (comment (run-tests))
