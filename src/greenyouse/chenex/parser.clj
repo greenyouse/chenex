@@ -109,7 +109,11 @@
   [feature-set inner-transforms expr]
   (let [t (fe-transform feature-set inner-transforms)
         ;; must wrap expr in a sequence to return all the nodes
-        fe (->> expr str (str "[") s/reverse (str "]") s/reverse read-string)]
+        wrapped (->> expr str (str "[") s/reverse (str "]") s/reverse)
+        fe (binding [*default-data-reader-fn*
+                     (fn [tag arg]
+                       (symbol (str "#" tag " " arg)))]
+             (read-string wrapped))]
     (parse-nodes t fe)))
 
 (defn- exit

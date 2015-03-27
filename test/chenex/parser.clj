@@ -114,7 +114,19 @@
     (println (str \"Hello \" p))))")))
           (read-string "(defn woot [hi]
                    (let [p \"looking good\"]
-                     (println (str \"Hello \" p))))")))))
+                     (println (str \"Hello \" p))))")))
+
+    ;; with a tagged literal
+    (is (= (exit (prep #{:firefox} []
+                        "(defn woot [hi]
+  (let [p (chenex/in-case! [:chrome] \"chrome\"
+            [:safari] \"safari\"
+            [:firefox] \"firefox\"
+            [:mobile] \"mobiles\"
+            :else
+            \"woot\")]
+    (println #js {:some :obj})))"))
+            "(defn woot [hi] (let [p \"firefox\"] (println #js {:some :obj})))"))))
 
 (comment (run-tests))
 
