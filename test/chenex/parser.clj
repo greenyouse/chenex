@@ -1,6 +1,7 @@
 (ns chenex.parser-tests
-  (:require [greenyouse.chenex.parser :refer :all]
-            [clojure.test :refer :all]))
+  (:use [greenyouse.chenex.parser]
+        [greenyouse.chenex]
+        [clojure.test]))
 
 
 ;; TODO: Explain the case execution order in more detail in README
@@ -127,6 +128,20 @@
             \"woot\")]
     (println #js {:some :obj})))"))
             "(defn woot [hi] (let [p \"firefox\"] (println #js {:some :obj})))"))))
+
+;; with a chenex-repl.clj of #{:chrome :b}
+(deftest macro-test
+  (is (= "chrome" (in! [:chrome] "chrome")))
+  (is (= nil (in! [:safari] "safari")))
+  (is (= "chrome" (ex! [:safari] "chrome")))
+  (is (= nil (ex! [:chrome] "safari")))
+  (is (= "chrome" (in-case! [:b] "chrome"
+                    [:safari] "safari")))
+  (is (= nil (in-case! [:opera] "opera"
+                    [:safari] "safari")))
+  (is (= "chrome" (in-case! [:opera] "opera"
+                    :else
+                    "chrome"))))
 
 (comment (run-tests))
 
