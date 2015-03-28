@@ -65,10 +65,7 @@
                   false (second fe) (first (nthrest fe 2)))
       chenex/in-case! ((comp (do-transforms inner-transforms)
                              (case-transform feature-set))
-                       true (rest fe))
-      chenex/ex-case! ((comp (do-transforms inner-transforms)
-                             (case-transform feature-set))
-                       false (rest fe)))))
+                       true (rest fe)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

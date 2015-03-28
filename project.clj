@@ -1,4 +1,4 @@
-(defproject com.greenyouse/chenex "0.1.3"
+(defproject com.greenyouse/chenex "0.1.4"
   :description "Another feature expression library for Clojure"
   :url "http://github.com/greenyouse/chenex"
   :license {:name "BSD 2-Clause"

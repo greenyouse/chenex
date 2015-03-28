@@ -28,11 +28,3 @@
                  [:d]  (println "or desktops")
                  [:m]  (println "or mobile")
                  :else  (println "this goes wherever else"))
-
-;; this is the most common use for ex-case!
-(chenex/ex-case! [:firefox]  (println "everywhere not firefox")
-                 :else  (println "here's code for firefox") )
-
-(chenex/ex-case! [:m :d]  (println "everywhere not mobile")
-                 [:firefox]  (println "this throws an error at the REPL, see why?")
-                 :else  (println "here's code for mobile + desktop") )
