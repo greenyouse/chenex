@@ -48,10 +48,8 @@ equivalent expression with negation would be:
 (chenex/ex! [:osx] (+ 1 1))
 ```
 
-
 What if we wanted different code for osx, linux, and windows? For
-targeting multiple envs there are in-case! (include case) and ex-case!
-(exclude case).
+targeting multiple envs there is in-case! (include case).
 
 Here is what this may look like with using in-case!:
 
@@ -60,17 +58,6 @@ Here is what this may look like with using in-case!:
                  [:osx]  (println "Shows in osx") 
                  :else  (println "This is linux"))
 ```
-
-The ex-case! is much weaker and should only be used for excluding some
-group of platforms while offering alternative code with an `:else`
-clause. I'd suggest sticking to in-case! for most complex expressions. An
-ex-case! use looks like this:
-
-```clj
-(chenex/ex-case! [:windows]  (println "In osx and linux") 
-                 :else  (println "This is in windows"))
-```
-
 
 Like in cljx, all cross-platform code must go in `.cljx` files. Any
 non-cljx files will be copied over without any special parsing.
