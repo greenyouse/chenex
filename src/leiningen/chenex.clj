@@ -37,13 +37,12 @@ Options are: cljx")))))]
     (do (io/make-parents "builds/chenex-build.clj")
         (spit "builds/chenex-build.clj" loc#))))
 
-;; TODO: could improve this a bit more by adding multiple envs
 (defn- repl
   "Sets a new target environment for the REPL iteractively. Enter the name
   of a chenex feature environement"
   [env]
   (lmain/info (yellow-text "Changing the chenex REPL.\n"))
-  (let [e# (->> env first keyword list set)]
+  (let [e# (reduce #(conj % (keyword %2)) #{} env)]
     (try (do (io/make-parents "builds/chenex-repl.clj")
              (spit "builds/chenex-repl.clj" (str e#)))
          (catch Exception _ (lmain/abort (red-text "Chenex Error: enter the name of a chenex feature\n\n"))))))
