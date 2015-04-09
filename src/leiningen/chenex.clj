@@ -31,7 +31,7 @@
   [temp]
   (lmain/info (yellow-text "Writing a new chenex configuration.\n"))
   (let [t# (first temp)
-        loc# (try (-> (str "chenex/templates/" t# ".clj") io/resource slurp)
+        loc# (try (-> (str "greenyouse/chenex/templates/" t# ".clj") io/resource slurp)
                   (catch Exception _ (lmain/abort (red-text (str "Chenex Error: template " (first temp) " not found.\n
 Options are: cljx")))))]
     (do (io/make-parents "builds/chenex-build.clj")
