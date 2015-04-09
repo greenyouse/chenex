@@ -49,9 +49,9 @@ equivalent expression with negation would be:
 ```
 
 What if we wanted different code for osx, linux, and windows? For
-targeting multiple envs there is in-case! (include case).
+targeting multiple envs there is `in-case!` (include case).
 
-Here is what this may look like with using in-case!:
+Here is what this may look like with using `in-case!`:
 
 ```clj
 (chenex/in-case! [:windows]  (println "I'm in windows") 
@@ -75,7 +75,7 @@ This can be set dynamically while working by either editing the
 `chenex-repl.clj` file by hand or with:
 
 ```sh
-$ lein chenex repl :ios
+$ lein chenex repl ios m
 ```
 
 ## project.clj
