@@ -34,8 +34,8 @@
         loc# (try (-> (str "greenyouse/chenex/templates/" t# ".clj") io/resource slurp)
                   (catch Exception _ (lmain/abort (red-text (str "Chenex Error: template " (first temp) " not found.\n
 Options are: cljx")))))]
-    (do (io/make-parents "builds/chenex-build.clj")
-        (spit "builds/chenex-build.clj" loc#))))
+    (do (io/make-parents "builds/chenex-builds.clj")
+        (spit "builds/chenex-builds.clj" loc#))))
 
 (defn- repl
   "Sets a new target environment for the REPL iteractively. Enter the name
