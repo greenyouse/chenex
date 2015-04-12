@@ -189,6 +189,21 @@ For things to work properly, you must require `chenex` like this:
 The compiler also strips any metadata that uses the `^:` reader
 macro. To get around this use `with-meta`.
 
+## Dependencies 
+
+If you're using chenex to write a library that others projects can
+depend on (e.g. a library of UI components), you should be mindful of
+one major oddity.  
+
+All files must be either clj or cljs (not cljx). To help make this a
+bit easier I added a `package` command that converts all cljx file in
+the source-paths to either clj or cljs. Use it like this:
+
+```sh
+#for clj files
+lein chenex package clj   
+```
+
 ## Projects Using chenex
 
 * [browserific](https://github.com/greenyouse/browserific)
