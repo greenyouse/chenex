@@ -1,4 +1,4 @@
-(ns chenex.parser-tests
+(ns chenex.repl-tests
   (:use [greenyouse.chenex]
         [clojure.test]
         [clojure.java.io :as io]
@@ -16,10 +16,11 @@
   "tests setting the platforms"
   [do-tests]
   (do
+    (reset! compiling true)
     (reset! features #{:chrome :b})
     (do-tests)
+    (reset! compiling false)
     (reset! features nil)))
-
 
 (deftest repl-test
   (is (= "chrome" (in! [:chrome] "chrome")))

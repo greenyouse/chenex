@@ -196,12 +196,15 @@ depend on (e.g. a library of UI components), you should be mindful of
 one major oddity.  
 
 All files must be either clj or cljs (not cljx). To help make this a
-bit easier I added a `package` command that converts all cljx file in
+bit easier I added a `package` command that converts all cljx files in
 the source-paths to either clj or cljs. Use it like this:
 
 ```sh
-#for clj files
-lein chenex package clj   
+# for clj files
+$ lein chenex package clj   
+
+# for cljs files
+$ lein chenex package cljs
 ```
 
 ## Projects Using chenex
