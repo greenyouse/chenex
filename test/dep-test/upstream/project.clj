@@ -2,10 +2,10 @@
   :description "example of an upstream dep"
   :dependencies [[org.clojure/clojure "1.6.0"]
                  [org.clojure/clojurescript "0.0-3126"]
-                 [com.greenyouse/chenex "0.1.6"]]
+                 [com.greenyouse/chenex "0.2.0"]]
 
   :plugins [[lein-cljsbuild "1.0.5"]
-            [com.greenyouse/chenex "0.1.6"]]
+            [com.greenyouse/chenex "0.2.0"]]
 
 
   :profiles {:default [:base :system :user :provided :dev :plugin.chenex/default]}
