@@ -1,6 +1,5 @@
 (ns chenex.parser-tests
   (:use [greenyouse.chenex.parser]
-        [greenyouse.chenex]
         [clojure.test]))
 
 
@@ -129,21 +128,7 @@
     (println #js {:some :obj})))"))
             "(defn woot [hi] (let [p \"firefox\"] (println #js {:some :obj})))"))))
 
-;; with a chenex-repl.clj of #{:chrome :b}
-(deftest macro-test
-  (is (= "chrome" (in! [:chrome] "chrome")))
-  (is (= nil (in! [:safari] "safari")))
-  (is (= "chrome" (ex! [:safari] "chrome")))
-  (is (= nil (ex! [:chrome] "safari")))
-  (is (= "chrome" (in-case! [:b] "chrome"
-                    [:safari] "safari")))
-  (is (= nil (in-case! [:opera] "opera"
-                    [:safari] "safari")))
-  (is (= "chrome" (in-case! [:opera] "opera"
-                    :else
-                    "chrome"))))
-
-(comment (run-tests))
+(run-tests)
 
 ;; TODO: make a test for the samples?
 (comment (start-parse "test/samples/browserific.cljx" "browserific.cljs" #{:firefox :b} [] []))

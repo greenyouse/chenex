@@ -27,6 +27,7 @@
           (and (not inclusive?) (seq feature-set)
             (seq listed-features) (empty? features)) content))))
 
+;; TODO: would be nice to report error location via (meta &form)
 (defn- case-transform
   "Parses a case expression to find the correct value."
   [feature-set]
@@ -52,7 +53,7 @@
         (not (empty? any-fe)) (first any-fe) ;take the first plat from list
         (and (empty? any-fe) else?) (last c))))) ;return the else clause
 
-(defn- fe-transform
+(defn fe-transform
   "Invokes the transform fns on feature expressions."
   [feature-set inner-transforms]
   (fn [fe]

@@ -1,46 +1,62 @@
-(ns greenyouse.chenex)
+(ns greenyouse.chenex
+  "REPL fns that also get expanded when clj/cljs code is compiled"
+  (:require [greenyouse.chenex.parser :as p])
+  (import java.io.File))
+
+;; these expand any upstream code at clj/cljs compile time
+(def compiling (atom false))
+
+(def features (atom nil))
+
+
+(def ^:private builds
+  "The chenex builds for the current project"
+  (if (.exists (File. "builds/chenex-builds.clj"))
+    (-> "builds/chenex-builds.clj" slurp read-string)
+    (as-> "project.clj" p
+      (slurp p)
+      (read-string p)
+      (nthrest p 3)
+      (apply hash-map p)
+      (get-in p [:chenex :builds]))))
+
+(def ^:private transforms
+  "The transforms and their associated feature expressions"
+  (reduce #(assoc %
+             (get-in %2 [:rules :features])
+             (get-in %2 [:rules :inner-transforms]))
+    {} builds))
+
+(defn- get-features
+  "Finds all the feature expressions. When compiling, it reads only the
+  feature expressions in #'features else it reads from builds/chenex-repl.clj
+  (for normal repl development)."
+  []
+  (if @compiling
+    @features
+    (-> "builds/chenex-repl.clj" slurp read-string)))
+
+(defn- get-transforms []
+  (let [trans# (get transforms (get-features))]
+    (if (empty? trans#) [] trans#)))
+
+(defn parse-fe
+  "Parses through one feature expression"
+  [features transforms fe]
+  (let [t# (p/fe-transform features transforms)]
+    (t# fe)))
 
 (defmacro in!
-  "Outputs code for the specified platforms. Used at the REPL"
+  "Outputs code for the specified platforms."
   [platforms body]
-  (let [chenex-env# (-> "builds/chenex-repl.clj" slurp read-string)]
-    `(if (seq (filter #(~chenex-env# %) ~platforms))
-       ~body)))
+  (parse-fe (get-features) (get-transforms) `(chenex/in! ~platforms ~body)))
 
 (defmacro ex!
-  "Outputs code for all the platforms availabile except the ones specified.
-  Used at the REPL"
+  "Outputs code for all the platforms availabile except the ones specified."
   [platforms body]
-  (let [chenex-env# (-> "builds/chenex-repl.clj" slurp read-string)]
-    `(let [features# (filterv #(~chenex-env# %) ~platforms)]
-       (if (and (seq ~platforms) (empty? features#))
-         ~body))))
-
-(defn- include-clauses [coll]
-  (->> coll
-       (partition 2)
-       (map (fn [expr]
-              (in! (first expr) (second expr))))
-       (filterv (complement nil?))))
-
-;; This is a bit bigger than clojure's cond+case because it must detect
-;; ambigous clauses. For example, including a platform twice in the same
-;; inclusive statement should cause an error, not just return the first
-;; valid clause.
-
-(defn- parse-case [clauses]
-  (let [else?#  (-> clauses reverse second keyword?) ;check for else clause
-        conditions# (if else?#
-                      ;;pull out else clause
-                      (-> clauses butlast butlast)
-                      clauses)
-        valid-fe# (include-clauses conditions#)]
-    (case (count valid-fe#)
-      0 (if else?# (last clauses)) ;else or nil
-      1 (first valid-fe#)
-      (throw (Exception. "Chenex Error: ambiguous expressions found")))))
+  (parse-fe (get-features) (get-transforms) `(chenex/ex! ~platforms ~body)))
 
 (defmacro in-case!
   "Syntactic sugar to have case-like in! statements."
   [& coll]
-  (parse-case coll))
+  (parse-fe (get-features) (get-transforms) `(chenex/in-case! ~@coll)))

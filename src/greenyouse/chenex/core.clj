@@ -13,12 +13,12 @@
         files (filter #(.isFile %) matches)
         cljx? (fn [f]
                 (re-find #"^(?:(?!#).)*\.cljx$" (str f)))]
-                (reduce (fn [m f]
-                          (if (cljx? f)
-                            (update-in m [:to-parse] #(conj % (str f)))
-                            (update-in m [:dont-parse] #(conj % (str f)))))
-                  {:to-parse []
-                   :dont-parse []} files)))
+    (reduce (fn [m f]
+              (if (cljx? f)
+                (update-in m [:to-parse] #(conj % (str f)))
+                (update-in m [:dont-parse] #(conj % (str f)))))
+      {:to-parse []
+       :dont-parse []} files)))
 
 ;; taken from cljx
 (defn- relativize [source-path f]
@@ -41,13 +41,29 @@
                               (write-extension f filetype)) to-parse)
         dont-parse-out (mapv #(as-> (relativize src %) f
                                 (str out f)) dont-parse)]
+
     (doall (pmap #(p/start-parse % %2 features inner-transforms)
              to-parse to-parse-out))
     (doall (pmap #(do (io/make-parents %2)
                       (spit %2 (slurp %))) dont-parse dont-parse-out))))
 
+(defn feature-file
+  "Dumps a file into the output that sets the compiling to true and gives
+  the correct feature expressions."
+  [output-path features]
+  (let [out (if (= \/ (last output-path))
+              (str output-path "features.clj")
+              (str output-path "/features.clj"))
+        code (str "(ns greenyouse.chenex.features
+                  (:require [greenyouse.chenex :as c]))
+                (reset! c/compiling true)
+                (reset! c/features " features ")")]
+    (do (io/make-parents out)
+        (spit out code))))
+
 (defn- read-build [{:keys [source-paths output-path rules]}]
   (let [{:keys [filetype features inner-transforms]}  rules]
+    (feature-file output-path features)
     (doall (pmap #(parse-src % output-path filetype features
                     inner-transforms) source-paths))))
 
