@@ -1,15 +1,12 @@
 (ns chenex.parser-tests
   (:use [greenyouse.chenex.parser]
-        [clojure.test]))
-
-
-;; TODO: Explain the case execution order in more detail in README
-
-;;; feature expression permuatations:
-;; when true and in expr -> first valid expr (true)
-;; when true and not in expr -> else (fail)
-;; when false and in expr -> else (fail)
-;; when false and not in expr -> first valid expr (true)
+        [clojure.test])
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as sh]
+            [clojure.test.check :as tc]
+            [clojure.test.check.clojure-test :refer [defspec]]
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check.properties :as prop]))
 
 (defn inner-trans1 [expr]
   (clojure.string/replace expr #"firefox" "Woot"))
@@ -128,11 +125,16 @@
     (println #js {:some :obj})))"))
             "(defn woot [hi] (let [p \"firefox\"] (println #js {:some :obj})))"))))
 
+
+(def no-fe-run
+  "Runs random data through the parser without feature expresssions to
+  to catch any possible errors."
+  (with-private-fns [greenyouse.chenex.parser [prep]]
+    (prop/for-all
+      [i (gen/recursive-gen gen/vector gen/any)]
+      (= (list i) (prep #{} [] (str i))))))
+
+
+(defspec input-test 1000 no-fe-run)
+
 (run-tests)
-
-;; TODO: make a test for the samples?
-(comment (start-parse "test/samples/browserific.cljx" "browserific.cljs" #{:firefox :b} [] []))
-
-;; for testing the whole system (make this better)
-(comment (with-private-fns [chenex.core [parse-src]]
-            (parse-src "test/samples" "intermediate" "woot" #{:clj} [] [])))

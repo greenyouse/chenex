@@ -1,8 +1,8 @@
 (ns chenex.repl-tests
   (:use [greenyouse.chenex]
-        [clojure.test]
-        [clojure.java.io :as io]
-        [clojure.java.shell :as sh]))
+        [clojure.test])
+  (:require [clojure.java.io :as io]
+            [clojure.java.shell :as sh]))
 
 (defn build-fixture
   "tests the chenex-repl.clj"
