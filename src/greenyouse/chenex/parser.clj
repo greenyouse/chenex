@@ -84,8 +84,10 @@
                            (vector? coll) (into [] (parse-nodes t coll))
                            :else
                            (parse-nodes t coll))
-    :else
-    coll))
+      (set? coll) (into #{} (map #(node-filter t %) coll))
+      (map? coll)  (into {} (map #(into [] (parse-nodes t %)) coll))
+      :else
+      coll))
 
 (defn- parse-nodes
   "Recursively searches the entire tree for matches using a depth-first
