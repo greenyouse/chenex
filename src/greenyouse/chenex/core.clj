@@ -55,9 +55,10 @@
               (str output-path "features.clj")
               (str output-path "/features.clj"))
         code (str "(ns greenyouse.chenex.features
-                  (:require [greenyouse.chenex :as c]))
-                (reset! c/compiling true)
-                (reset! c/features " features ")")]
+                   (:require [greenyouse.chenex :as c]))
+                   (swap! opts (fn [opts]
+                     (assoc opts :compiling true
+                                 :features " features ")))")]
     (do (io/make-parents out)
         (spit out code))))
 

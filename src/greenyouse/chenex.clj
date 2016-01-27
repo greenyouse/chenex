@@ -4,41 +4,39 @@
   (import java.io.File))
 
 ;; these expand any upstream code at clj/cljs compile time
-(def compiling (atom false))
+(def opts (atom {:compiling false
+                 :features nil}))
 
-(def features (atom nil))
+(defn- get-project-config []
+  (as-> "project.clj" p
+    (slurp p)
+    (read-string p)
+    (nthrest p 3)
+    (apply hash-map p)))
 
-
-(def ^:private builds
-  "The chenex builds for the current project"
-  (if (.exists (File. "builds/chenex-builds.clj"))
-    (-> "builds/chenex-builds.clj" slurp read-string)
-    (as-> "project.clj" p
-      (slurp p)
-      (read-string p)
-      (nthrest p 3)
-      (apply hash-map p)
-      (get-in p [:chenex :builds]))))
-
-(def ^:private transforms
+(defn- index-transforms
   "The transforms and their associated feature expressions"
-  (reduce #(assoc %
-             (get-in %2 [:rules :features])
-             (get-in %2 [:rules :inner-transforms]))
-    {} builds))
+  []
+  (let [project (get-project-config)
+        builds (get-in project [:chenex :builds])]
+    (reduce #(assoc %
+               (get-in %2 [:rules :features])
+               (get-in %2 [:rules :inner-transforms]))
+      {} builds)))
 
 (defn- get-features
   "Finds all the feature expressions. When compiling, it reads only the
   feature expressions in #'features else it reads from builds/chenex-repl.clj
   (for normal repl development)."
   []
-  (if @compiling
-    @features
-    (-> "builds/chenex-repl.clj" slurp read-string)))
+  (let [{:keys [compiling features]} @opts]
+    (if compiling
+      features
+      (get-in (get-project-config) [:chenex :features]))))
 
 (defn- get-transforms []
-  (let [trans# (get transforms (get-features))]
-    (if (empty? trans#) [] trans#)))
+  (let [trans (get (index-transforms) (get-features))]
+    (if (empty? trans) [] trans)))
 
 (defn parse-fe
   "Parses through one feature expression"
