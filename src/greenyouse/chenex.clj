@@ -1,42 +1,34 @@
 (ns greenyouse.chenex
   "REPL fns that also get expanded when clj/cljs code is compiled"
-  (:require [greenyouse.chenex.parser :as p])
+  (:require [greenyouse.chenex.parser :as p]
+            [plugin-helpers.core :as h])
   (import java.io.File))
 
 ;; these expand any upstream code at clj/cljs compile time
 (def opts (atom {:compiling false
                  :features nil}))
 
-(defn- get-project-config []
-  (as-> "project.clj" p
-    (slurp p)
-    (read-string p)
-    (nthrest p 3)
-    (apply hash-map p)))
-
 (defn- index-transforms
   "The transforms and their associated feature expressions"
   []
-  (let [project (get-project-config)
-        builds (get-in project [:chenex :builds])]
-    (reduce #(assoc %
-               (get-in %2 [:rules :features])
-               (get-in %2 [:rules :inner-transforms]))
-      {} builds)))
+  (reduce #(assoc %
+             (get-in %2 [:rules :features])
+             (get-in %2 [:rules :inner-transforms]))
+    {} (h/get-project-value :chenex :builds)))
 
 (defn- get-features
   "Finds all the feature expressions. When compiling, it reads only the
-  feature expressions in #'features else it reads from builds/chenex-repl.clj
-  (for normal repl development)."
+  feature expressions in the build otherwise it reads the value
+  from the :repl entry in project.clj."
   []
   (let [{:keys [compiling features]} @opts]
     (if compiling
       features
-      (get-in (get-project-config) [:chenex :features]))))
+      (h/get-project-value :chenex :repl))))
 
 (defn- get-transforms []
-  (let [trans (get (index-transforms) (get-features))]
-    (if (empty? trans) [] trans)))
+  (let [trans# (get (index-transforms) (get-features))]
+    (if (empty? trans#) [] trans#)))
 
 (defn parse-fe
   "Parses through one feature expression"

@@ -1,5 +1,5 @@
 (ns cljx
-  (:require [chenex.macros :as chenex]))
+  (:require [greenyouse.chenex :as chenex]))
 
 ;; doing basic clojure/clojurescript, cljx style
 (chenex/in! [:clj] (println "I'm a clojure file"))

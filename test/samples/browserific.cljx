@@ -1,5 +1,5 @@
 (ns browserific
-  (:require [chenex.macros :as chenex]))
+  (:require [greenyouse.chenex :as chenex]))
 
 ;; some code to show the browserific use case
 (chenex/in! [:ios :firefoxos] (println "I'm in ios + firefoxos"))
