@@ -1,9 +1,11 @@
 (ns greenyouse.chenex.parser
   (:require [clojure.java.io :as io]
-            [clojure.string :as s]))
+            [rewrite-clj.zip :as z]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Transforms
+
+;; TODO: do a general cleanup here later
 
 ;; TODO: could optimize transforms a little bit
 (defn- do-transforms
@@ -72,60 +74,40 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Parser
 
-(declare parse-nodes)
+(def ^:private chenex-macros
+  #{'chenex/in! 'chenex/ex! 'chenex/in-case!})
 
-;; NOTE: must keep datatype intact, e.g. [] -> [], not to seq
-(defn node-filter [t coll]
-  (cond
-    (and (list? coll)
-      (re-find #"chenex" (str (first coll)))) (t coll)
-      (sequential? coll) (cond
-                           (empty? coll) coll
-                           (vector? coll) (into [] (parse-nodes t coll))
-                           :else
-                           (parse-nodes t coll))
-      (set? coll) (into #{} (map #(node-filter t %) coll))
-      (map? coll)  (into {} (map #(into [] (parse-nodes t %)) coll))
-      :else
-      coll))
+(defn- chenex-macro?
+  "Returns true if the node is a chenex macro"
+  [loc]
+  (when (z/list? loc)
+    (let [op (-> loc z/down z/value)]
+      (boolean (chenex-macros op)))))
 
-(defn- parse-nodes
-  "Recursively searches the entire tree for matches using a depth-first
-  search. When a match is found, process fe, otherwise do nothing."
-  ([transform exprs] (trampoline (parse-nodes transform exprs nil)))
-  ([transform exprs acc]
-   (if (empty? exprs) (reverse acc)
-       #(parse-nodes transform (rest exprs)
-          (conj acc (node-filter transform (first exprs)))))))
+(defn- parse-nodes [xform forms]
+  (z/prewalk
+    (z/up forms) ; ensure all forms are walked
+    chenex-macro?
+    (fn [loc]
+      (let [parsed (-> loc z/sexpr xform)]
+        (if (nil? parsed)
+          (z/remove loc) ; filter nodes not in the feature expression set
+          (z/replace loc parsed))))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Interface
 
-;; FIXME: `ns` will kill the parser if it's not in the first sexpr. Why?
-;; FIXME: handle errors without killing the process
 (defn- prep
-  "Helper fn that wraps code in a vector before passing it to parse-nodes."
-  [feature-set inner-transforms expr]
-  (let [t (fe-transform feature-set inner-transforms)
-        ;; must wrap expr in a sequence to return all the nodes
-        wrapped (->> expr str (str "[") s/reverse (str "]") s/reverse)
-        fe (binding [*default-data-reader-fn*
-                     (fn [tag arg]
-                       (symbol (str "#" tag " " arg)))]
-             (read-string wrapped))]
-    (parse-nodes t fe)))
+  "Helper fn that registers the transforms and calls the parser."
+  [feature-set inner-transforms forms]
+  (let [xform (fe-transform feature-set inner-transforms)]
+    (parse-nodes xform forms)))
 
-(defn- exit
-  "Helper fn to convert back to string and unwrap the code."
-  [fe]
-  (-> fe str (subs 1) s/reverse (subs 1) s/reverse))
-
-;; TODO: would be nice to filter out the nils and pretty print the output
 (defn start-parse [file-in file-out features inner-transforms]
   (let [in-p (->> file-in
-               slurp
-               (prep features inner-transforms)
-               exit)]
+                  z/of-file
+                  (prep features inner-transforms)
+                  z/root-string)]
     (do (io/make-parents file-out)
         (spit file-out in-p))))
