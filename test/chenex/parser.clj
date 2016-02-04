@@ -1,8 +1,11 @@
 (ns chenex.parser-tests
+  (:require [rewrite-clj.zip :as z])
   (:use [greenyouse.chenex.parser]
         [clojure.test]))
 
-
+;; TODO: write test.check generators for each chenex macro
+;;  and validate that code survives a roundtrip with all
+;;  feature expressions parsed out
 ;; TODO: Explain the case execution order in more detail in README
 
 ;;; feature expression permuatations:
@@ -46,89 +49,8 @@
                                                 :else "woot"))
           '(+ 1 1)))))
 
-(deftest parser-test
-  (with-private-fns [greenyouse.chenex.parser [prep exit]]
-    ;; no feature exprs
-    (is (= (read-string (exit (prep #{:chrome} []
-                                 "(ns woot.content (:refer-clojure :exclude [atom])
-  (:require [cljs.core.logic :as cl]
-            [cljs.core.logic.pldb :as pl]
-            [freactive.dom :as dom]
-            [freactive.core :refer [atom cursor]]
-            [cljs.core.async :as async :refer [put! <! chan]]
-            [greenyouse.chenex :as chenex])
-  (:require-macros [cljs.core.logic :as cm]
-                   [cljs.core.logic.pldb :as pm]
-                   [freactive.macros :refer [rx]]
-                   [cljs.core.async.macros :refer [go-loop]]))")))
-           (read-string
-             "(ns woot.content (:refer-clojure :exclude [atom])
-  (:require [cljs.core.logic :as cl]
-            [cljs.core.logic.pldb :as pl]
-            [freactive.dom :as dom]
-            [freactive.core :refer [atom cursor]]
-            [cljs.core.async :as async :refer [put! <! chan]]
-            [greenyouse.chenex :as chenex])
-  (:require-macros [cljs.core.logic :as cm]
-                   [cljs.core.logic.pldb :as pm]
-                   [freactive.macros :refer [rx]]
-                   [cljs.core.async.macros :refer [go-loop]]))")))
-
-    ;; testing one feature expr
-    (is (= (read-string (exit (prep #{:firefox} []
-                                 "(defn woot [hi]
-  (let [p (chenex/in-case! [:chrome] \"chrome\"
-            [:safari] \"safari\"
-            [:firefox] \"firefox\"
-            [:mobile] \"mobiles\"
-            :else
-            \"woot\")]
-    (println (str \"Hello \" p))))")))
-           (read-string "(defn woot [hi]
-                   (let [p \"firefox\"]
-                     (println (str \"Hello \" p))))")))
-
-    ;; with one inner-transform
-    (is (= (read-string (exit (prep #{:firefox} [inner-trans1]
-                                "(defn woot [hi]
-  (let [p (chenex/in-case! [:chrome] \"chrome\"
-            [:safari] \"safari\"
-            [:firefox] \"firefox\"
-            [:mobile] \"mobiles\"
-            :else
-            \"woot\")]
-    (println (str \"Hello \" p))))")))
-          (read-string "(defn woot [hi]
-                   (let [p \"Woot\"]
-                     (println (str \"Hello \" p))))")))
-
-    ;; with two inner-transforms
-    (is (= (read-string (exit (prep #{:firefox} [inner-trans1 inner-trans2]
-                                "(defn woot [hi]
-  (let [p (chenex/in-case! [:chrome] \"chrome\"
-            [:safari] \"safari\"
-            [:firefox] \"firefox\"
-            [:mobile] \"mobiles\"
-            :else
-            \"woot\")]
-    (println (str \"Hello \" p))))")))
-          (read-string "(defn woot [hi]
-                   (let [p \"looking good\"]
-                     (println (str \"Hello \" p))))")))
-
-    ;; with a tagged literal
-    (is (= (exit (prep #{:firefox} []
-                        "(defn woot [hi]
-  (let [p (chenex/in-case! [:chrome] \"chrome\"
-            [:safari] \"safari\"
-            [:firefox] \"firefox\"
-            [:mobile] \"mobiles\"
-            :else
-            \"woot\")]
-    (println #js {:some :obj})))"))
-            "(defn woot [hi] (let [p \"firefox\"] (println #js {:some :obj})))"))))
-
-(run-tests)
+(comment
+  (run-tests))
 
 ;; TODO: make a test for the samples?
 (comment (start-parse "test/samples/browserific.cljx" "browserific.cljs" #{:firefox :b} [] []))

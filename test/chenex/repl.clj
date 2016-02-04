@@ -1,43 +1,47 @@
 (ns chenex.repl-tests
-  (:use [greenyouse.chenex]
-        [clojure.test]
-        [clojure.java.io :as io]
-        [clojure.java.shell :as sh]))
+  (:require [clojure.java.io :as io]
+            [plugin-helpers.core :as h])
+  (:use [clojure.test]
+        [greenyouse.chenex]))
 
+;; TODO: make a tear down for the entire :chenex entry,
+;;  add a h/remove-in-project for deleting kv pairs
 (defn build-fixture
   "tests the chenex-repl.clj"
   [do-tests]
-  (do (io/make-parents "builds/chenex-repl.clj")
-      (spit "builds/chenex-repl.clj" #{:chrome :b})
-      (do-tests)
-      (sh/sh "rm" "-r" "builds")))
+  (let [orig (h/get-project-value :chenex :repl)]
+    (h/assoc-in-project [:chenex :repl] #{:chrome :b})
+    (do-tests)
+    (h/assoc-in-project [:chenex :repl] orig)))
 
 (defn platform-fixture
   "tests setting the platforms"
   [do-tests]
   (do
-    (reset! compiling true)
-    (reset! features #{:chrome :b})
+    (reset! opts {:compiling true
+                  :features #{:chrome :b}})
     (do-tests)
-    (reset! compiling false)
-    (reset! features nil)))
+    (reset! opts {:compiling false
+                  :features nil})))
 
 (deftest repl-test
-  (is (= "chrome" (in! [:chrome] "chrome")))
-  (is (= nil (in! [:safari] "safari")))
-  (is (= "chrome" (ex! [:safari] "chrome")))
-  (is (= nil (ex! [:chrome] "safari")))
-  (is (= "chrome" (in-case! [:b] "chrome"
-                    [:safari] "safari")))
-  (is (= nil (in-case! [:opera] "opera"
-                    [:safari] "safari")))
-  (is (= "chrome" (in-case! [:opera] "opera"
-                    :else
-                    "chrome"))))
+  (are [expected expr]
+      (= expected expr)
+    "chrome" (in! [:chrome] "chrome")
+    nil (in! [:safari] "safari")
+    "chrome" (ex! [:safari] "chrome")
+    nil (ex! [:chrome] "safari")
+    "chrome" (in-case! [:b] "chrome"
+               [:safari] "safari")
+    nil (in-case! [:opera] "opera"
+          [:safari] "safari")
+    "chrome" (in-case! [:opera] "opera"
+               :else
+               "chrome")))
 
 
 (use-fixtures :once (fn [test]
                       (build-fixture test)
                       (platform-fixture test)))
 
-(run-tests)
+(comment (run-tests))
