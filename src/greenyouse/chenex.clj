@@ -24,7 +24,8 @@
   (let [{:keys [compiling features]} @opts]
     (if compiling
       features
-      (h/get-project-value :chenex :repl))))
+      ;; this avoids throwing a nil Exception
+      (or (h/get-project-value :chenex :repl) #{}))))
 
 (defn- get-transforms []
   (let [trans# (get (index-transforms) (get-features))]
