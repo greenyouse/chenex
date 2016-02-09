@@ -3,9 +3,8 @@
 chenex is a feature expression library in the same vein as the excellent
 [cljx](https://github.com/lynaghk/cljx) project. This library tries to
 remain true to the cljx implementation while adding a few new features
-(see below). The name comes from a combination of
-[chen](http://i1.kym-cdn.com/photos/images/original/000/658/650/820.gif)
-(honk honk!) and cljx. 
+(see below). The name comes from a combination of chen (honk honk!) and
+cljx.  
 
 [![Clojars Project](http://clojars.org/com.greenyouse/chenex/latest-version.svg)](http://clojars.org/com.greenyouse/chenex)
 
@@ -62,17 +61,19 @@ Here is what this may look like with using `in-case!`:
 Like in cljx, all cross-platform code must go in `.cljx` files. Any
 non-cljx files will be copied over without any special parsing.
 
+
 ## REPL
 
-The REPL also must have a special file at `builds/chenex-repl.clj`
-that contains a set of one or more chenex builds. For example:
+The REPL also must have a special entry in the `project.clj` that
+contains a set of one or more chenex builds. For example:
 
 ```clj
-#{:ios :m}
+:chenex {:builds [...]
+         :repl #{:ios :m}
 ```
 
 This can be set dynamically while working by either editing the
-`chenex-repl.clj` file by hand or with:
+entry in your `project.clj` by hand or with:
 
 ```sh
 $ lein chenex repl ios m
@@ -139,11 +140,11 @@ If you're going to do a Clojure/ClojureScript build, I have written a
 default template to save some time. Just run:
 
 ```sh
-$ lein chenex build cljx 
+$ lein chenex template cljx 
 ```
 
-That creates a `builds/chenex-builds.clj` with a basic configuration
-written for you that looks like this (showing cljx):
+That creates a a basic configuration written for you that looks like
+this (showing cljx):
 
 ```clj
 [{:source-paths ["src"]
@@ -168,26 +169,12 @@ written for you that looks like this (showing cljx):
           :inner-transforms []}}]
 ```
 
-To have leiningen pick up the build, add the following to your
-project.clj:
-
-```clj
-:chenex {:builds ~(-> "builds/chenex-builds.clj" slurp read-string)}
-```
-
-This feature is a little experimental, so if you have suggestions for
-the template or want to add a new one, let me know.
-
-
 For things to work properly, you must require `chenex` like this:
 
 ```clj
 (ns your.project
     (:require [greenyouse.chenex :as chenex])
 ```
-
-The compiler also strips any metadata that uses the `^:` reader
-macro. To get around this use `with-meta`.
 
 ## Dependencies 
 
@@ -214,6 +201,7 @@ $ lein chenex package cljs
 ## Thanks
 
 A huge thanks to [cljx](https://github.com/lynaghk/cljx),
-[lein-auto](https://github.com/weavejester/lein-auto), and
-[sjacket](https://github.com/cgrand/sjacket), without which this project
+[lein-auto](https://github.com/weavejester/lein-auto), 
+[sjacket](https://github.com/cgrand/sjacket), and
+[rewrite-clj](https://github.com/xsc/rewrite-clj), without which this project
 would not exist. 
