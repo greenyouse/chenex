@@ -1,12 +1,12 @@
 # chenex
 
-chenex is a feature expression library in the same vein as the excellent
+Chenex is a feature expression library in the same vein as the excellent
 [cljx](https://github.com/lynaghk/cljx) project. This library tries to
 remain true to the cljx implementation while adding a few new features
 (see below). The name comes from a combination of chen (honk honk!) and
 cljx.  
 
-[![Clojars Project](http://clojars.org/com.greenyouse/chenex/latest-version.svg)](http://clojars.org/com.greenyouse/chenex)
+[![Clojars Project](https://img.shields.io/clojars/v/com.greenyouse/chenex.svg)](https://clojars.org/com.greenyouse/chenex)
 
 ## Feature Expressions 
 
