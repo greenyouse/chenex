@@ -26,19 +26,19 @@
         (h/warning "Chenex Error: No builds detected in project.clj")))))
 
 
+;; TODO: make first run have pretty formatting and fix indentations
 ;;happy to add more templates here
-(defn- build
+(defn- template
   "Writes a basic build template, options are: cljx"
-  [template]
+  [[temp-name]]
   (h/info "Writing a new chenex configuration.\n")
-  (let [t# (first template)
-        loc# (try (-> (str "greenyouse/chenex/templates/" t# ".clj")
-                    io/resource
-                    slurp)
-                  (catch Exception _
-                    (lmain/abort (h/red-text
-                                   (format "Chenex Error: template %s not found.\n\n Options are: cljx" (first template))))))]
-    (h/assoc-in-project [:chenex :builds] (vec t#))))
+  (let [config# (try (-> (str "greenyouse/chenex/templates/" temp-name ".clj")
+                         io/resource
+                         slurp
+                         read-string)
+                     (catch Exception _
+                       (h/abort (format "Chenex Error: template %s not found.\n\n Options are: cljx" temp-name))))]
+    (h/assoc-in-project [:chenex :builds] config#)))
 
 
 (defn- repl
@@ -48,7 +48,7 @@
   (h/info "Changing the chenex REPL.\n")
   (let [e# (reduce #(conj % (keyword %2)) #{} env)]
     (try (h/assoc-in-project [:chenex :repl] e#)
-         (catch Exception _ (lmain/abort (h/red-text "Chenex Error: enter the name of a chenex feature\n\n"))))))
+         (catch Exception _ (h/abort "Chenex Error: enter the name of a chenex feature\n\n")))))
 
 
 (defn- write-extension [f filetype]
@@ -64,7 +64,7 @@
   [filetype project]
   (if (or (nil? (some #(#{:clj :cljs} %) (map keyword filetype)))
         (not= 1 (count filetype)))
-    (lmain/abort (h/red-text "Chenex Error: package requires either clj or cljs"))
+    (h/abort "Chenex Error: package requires either clj or cljs")
     (let [src (:source-paths project)
           files (reduce #(into % (file-seq (File. %2))) [] src)
           cljx? (fn [f]
@@ -77,17 +77,17 @@
 
 
 (defn chenex
-  "Run the chenex compiler"
-  {:help-arglists '([compile build repl package])
-   :subtasks [#'compile #'build #'repl #'package]}
+  {:help-arglists '([compile template repl package])
+   :subtasks [#'compile #'template #'repl #'package]}
   ([project]
      (lmain/abort
       (lhelp/help-for "chenex")))
   ([project subtask & args]
      (case subtask
        "compile" (compile project)
-       "build" (build args)
+       "template" (template args)
        "repl" (repl args)
        "package" (package args project)
-       (lmain/abort (h/red-text (str "Chenex Error: Subtask " subtask " not found."))
-                    (lhelp/subtask-help-for "chenex")))))
+       (lmain/abort
+         (h/red-text (str "Chenex Error: Subtask " subtask " not found. \n"))
+         (lhelp/help-for "chenex")))))
