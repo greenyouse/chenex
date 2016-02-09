@@ -1,4 +1,4 @@
-(defproject com.greenyouse/chenex "0.2.2-SNAPSHOT"
+(defproject com.greenyouse/chenex "0.2.2"
   :description "Another feature expression library for Clojure"
   :url "https://github.com/greenyouse/chenex"
   :license {:name "BSD 2-Clause"
@@ -8,5 +8,4 @@
                  [org.clojure/clojurescript "1.7.228"]
                  [com.greenyouse/plugin-helpers "0.1.6"]
                  [rewrite-clj "0.4.12"]]
-
   :eval-in-leiningen true)
